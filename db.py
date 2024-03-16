@@ -73,7 +73,4 @@ def get_user(username: str, password: str):
                 return {'msg': 'valid credentials'}
             else:
                 break
-    raise HTTPException(
-                    status_code=401,
-                    detail="No matching account was found"
-                )
+    return None
