@@ -1,5 +1,6 @@
 from typing import Annotated
-from fastapi import FastAPI, Form, HTTPException,  Response
+from fastapi import FastAPI, Form, HTTPException, Response, Cookie, Header
+from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 
@@ -10,6 +11,9 @@ from db import check_credentials
 
 # Import jwt token generation resources
 from jwt import create_token, get_token_seconds_exp
+
+# Import utils
+from utils import is_login
 
 app = FastAPI()
 
@@ -26,6 +30,22 @@ Returns greeting message. Used for testing
 def greet():
     return {'msg': 'Welcome'}
 
+
+"""
+Returns message if user is login. Used for testing
+
+@rtype: json response
+@returns: Returns message if login
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+@app.get('/require_login')
+def require_login(access_token: Annotated[str | None, Header()] = None):
+    if is_login(access_token):
+        return {'msg': 'You are login'}
+    else:
+        return {'msg': 'Not login'}
 
 """
 Logins user

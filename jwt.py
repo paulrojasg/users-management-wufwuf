@@ -56,5 +56,6 @@ def decode_token(token: str):
         decoded_data = jwt.decode(token, key=SECRET_KEY, algorithms=["HS256"])
 
         return decoded_data
-    except Exception:
+    except Exception as e:
+        print(e)
         return None
