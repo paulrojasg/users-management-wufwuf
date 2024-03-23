@@ -58,8 +58,8 @@ def check_password(input_password, stored_password):
 """
 Gets user data
 
-@type email: str
-@param email: User's email to search
+@type username: str
+@param username: User's username to search
 @type password: str
 @param password: Plain password to check against the one in database
 @rtype: Dict or None
@@ -68,11 +68,10 @@ Gets user data
 @author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
 """
 
-def get_user(email: str, password: str):
+def get_user(username: str, password: str):
     for user in db_users:
-        if user['email'] == email:
+        if user['username'] == username:
             if check_password(password, user['password']):
-                return {'msg': 'valid credentials'}
             else:
                 break
     return None

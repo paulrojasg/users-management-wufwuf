@@ -1,8 +1,11 @@
 from typing import Annotated
-from fastapi import FastAPI, Form, HTTPException
+from fastapi import FastAPI, Form, HTTPException,  Response
 
 # Import login and database resources
 from db import get_user
+
+# Import jwt token generation resources
+from jwt import create_token, get_token_seconds_exp
 
 app = FastAPI()
 
@@ -23,8 +26,8 @@ def greet():
 """
 Logins user
 
-@type email: str
-@param email: Provided email in form
+@type username: str
+@param username: Provided username in form
 @type password: str
 @param password: Provided password in form
 @rtype: json response
@@ -34,9 +37,15 @@ Logins user
 """
 
 @app.post("/")
-def login(email: Annotated[str, Form()], password: Annotated[str, Form()]):
-    if get_user(email, password):
-        return {'msg':'You are in'}
+def login(response: Response, username: Annotated[str, Form()], password: Annotated[str, Form()]):
+    user_data = get_user(username, password)
+    if user_data:
+
+        token = create_token({'username': user_data['username']})
+        token_exp_seconds = get_token_seconds_exp()
+        response.set_cookie(key="access-token", value=token, max_age=token_exp_seconds)
+        return user_data
+
     raise HTTPException(
                 status_code=401,
                 detail="No matching account was found"
