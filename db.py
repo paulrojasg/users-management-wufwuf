@@ -55,8 +55,36 @@ def check_password(input_password, stored_password):
         return False
 
 
+
 """
 Gets user data
+
+@type username: str
+@param username: User's username to search
+@type get_password: Boolean
+@param include_password: True -> include password in data, False -> don't include it
+    (include_password=False by default)
+@rtype: Dict or None
+@returns: Returns user's data if match was found, return None if not
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+def get_user(username: str, include_password=False):
+    for user in db_users:
+        if user['username'] == username:
+            user_data = user.copy()
+
+            if not include_password:
+                del user_data['password']
+
+            return user_data
+    return None
+
+
+
+"""
+Checks credentials against users data and return match
 
 @type username: str
 @param username: User's username to search
@@ -68,13 +96,14 @@ Gets user data
 @author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
 """
 
-def get_user(username: str, password: str):
-    for user in db_users:
-        if user['username'] == username:
-            if check_password(password, user['password']):
-                user_data = user.copy()
-                del user_data['password']
-                return user_data
-            else:
-                break
+
+def check_login(username, password):
+
+    user_data = get_user(username, include_password=True)
+
+    if user_data:
+        if check_password(password, user_data['password']):
+            del user_data['password'] # Do not retrieve password to user!
+            return user_data
+
     return None
