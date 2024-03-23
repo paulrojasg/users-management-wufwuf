@@ -3,11 +3,13 @@ from fastapi import HTTPException
 db_users = [
     {
         "id": 0,
+        "username":"leonardo_fernandez",
         "email": "leonardo@mail.com",
         "password": "12345#hash"
     },
     {
         "id": 1,
+        "username":"ruben_diaz",
         "email": "ruben@mail.com",
         "password": "54321#hash"
     }
