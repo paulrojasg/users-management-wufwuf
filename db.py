@@ -72,6 +72,9 @@ def get_user(username: str, password: str):
     for user in db_users:
         if user['username'] == username:
             if check_password(password, user['password']):
+                user_data = user.copy()
+                del user_data['password']
+                return user_data
             else:
                 break
     return None
