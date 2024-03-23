@@ -97,7 +97,7 @@ Checks credentials against users data and return match
 """
 
 
-def check_login(username, password):
+def check_credentials(username, password):
 
     user_data = get_user(username, include_password=True)
 

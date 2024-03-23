@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import FastAPI, Form, HTTPException,  Response
 
 # Import login and database resources
-from db import check_login
+from db import check_credentials
 
 # Import jwt token generation resources
 from jwt import create_token, get_token_seconds_exp
@@ -38,7 +38,7 @@ Logins user
 
 @app.post("/")
 def login(response: Response, username: Annotated[str, Form()], password: Annotated[str, Form()]):
-    user_data = check_login(username, password)
+    user_data = check_credentials(username, password)
     if user_data:
 
         token = create_token({'username': user_data['username']})
