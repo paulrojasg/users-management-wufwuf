@@ -39,23 +39,22 @@ Retrieves TOKEN_EXP_SECONDS
 def get_token_seconds_exp():
     return TOKEN_EXP_SECONDS
 
+
 """
-Checks if given token is valid
+Returns decoded content of valid jwt token
 
 @type token: str
-@param token: JWT token to be checked
-@rtype: boolean
-@returns: Returns True if token is valid, returns False if not
+@param token: JWT token to be decoded
+@rtype: dict
+@returns: Decoded jwt token
 
 @author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
 """
 
-# def check_login_token(token):
-#     try:
-#         data_user = jwt.decode(token, key=SECRET_KEY, algorithms=["HS256"])
-#         if get_user(data_user["email"], db_users) is None:
-#             return RedirectResponse("/", status_code=302)
-#         return Jinja2_template.TemplateResponse("dashboard.html", {"request": request})
-#     except Exception:
-#         pass
-#     return Jinja2_template.TemplateResponse("dashboard.html", {"request": request})
+def decode_token(token: str):
+    try:
+        decoded_data = jwt.decode(token, key=SECRET_KEY, algorithms=["HS256"])
+
+        return decoded_data
+    except Exception:
+        return None
