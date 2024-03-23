@@ -1,13 +1,14 @@
 from jose import jwt
 from datetime import datetime, timedelta
-from db import get_user
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 #
-import random
-import string
 
-TOKEN_EXP_SECONDS = 20 # To be put in .env
-SECRET_KEY = ''.join(random.choices(string.ascii_uppercase, k=5)) # To be put in .env
+TOKEN_EXP_SECONDS = int(os.environ.get("TOKEN_EXP_SECONDS"))
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 """
 Generates jwt token
