@@ -1,4 +1,31 @@
 from fastapi import HTTPException
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+from models import Base, User, Role, Permission, RolePermission
+import os
+
+load_dotenv()
+
+db_config_context = {
+    "user":os.environ.get("DATABASE_USER"),
+    "name":os.environ.get("DATABASE_NAME"),
+    "pass":os.environ.get("DATABASE_PASSWORD"),
+    "port":os.environ.get("DATABASE_PORT"),
+    "host":os.environ.get("DATABASE_HOST")
+}
+
+engine = create_engine('postgresql://{0}:{1}@{2}:{3}/{4}'.format(
+    db_config_context['user'],
+    db_config_context['pass'],
+    db_config_context['host'],
+    db_config_context['port'],
+    db_config_context['name']
+))
+
+Session = sessionmaker(bind=engine)
+
+session = Session()
 
 db_users = [
     {
@@ -107,3 +134,56 @@ def check_credentials(username, password):
             return user_data
 
     return None
+
+
+def start_database_sample():
+
+    # Roles
+    member_role = Role(name='member')
+    session.add(member_role)
+    admin_role = Role(name='admin')
+    session.add(admin_role)
+
+    # Permissions
+    view_catalog_permission = Permission(name='View catalog')
+    session.add(view_catalog_permission)
+    update_catalog_permission = Permission(name='Update catalog')
+    session.add(update_catalog_permission)
+
+    # RolePermission
+    member_can_view_catalog = RolePermission()
+    member_can_view_catalog.role = member_role
+    member_can_view_catalog.permission = view_catalog_permission
+    session.add(member_can_view_catalog)
+    admin_can_view_catalog = RolePermission()
+    admin_can_view_catalog.role = admin_role
+    admin_can_view_catalog.permission = view_catalog_permission
+    session.add(admin_can_view_catalog)
+    admin_can_update_catalog = RolePermission()
+    admin_can_update_catalog.role = admin_role
+    admin_can_update_catalog.permission = update_catalog_permission
+    session.add(admin_can_update_catalog)
+
+    # Users
+    bob = User()
+    bob.username = 'bob'
+    bob.email = 'bob@mail.com'
+    bob.name = 'Bob'
+    bob.lastname = 'Pierce'
+    bob.role = member_role
+    session.add(bob)
+
+    alice = User()
+    alice.username = 'alice'
+    alice.email = 'alice@mail.com'
+    alice.age = 24
+    alice.name = 'Alice'
+    alice.lastname = 'Kane'
+    alice.role = admin_role
+    session.add(alice)
+
+    session.commit()
+
+if __name__ == '__main__':
+    Base.metadata.create_all(engine)
+    start_database_sample()
