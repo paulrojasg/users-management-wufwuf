@@ -1,5 +1,4 @@
-from fastapi import HTTPException
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, literal
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from models import Base, User, Role, Permission, RolePermission
@@ -27,20 +26,6 @@ Session = sessionmaker(bind=engine)
 
 session = Session()
 
-db_users = [
-    {
-        "id": 0,
-        "username":"leonardo_fernandez",
-        "email": "leonardo@mail.com",
-        "password": "12345#hash"
-    },
-    {
-        "id": 1,
-        "username":"ruben_diaz",
-        "email": "ruben@mail.com",
-        "password": "54321#hash"
-    }
-]
 
 """
 Decodes password; converts it from hash to plain
@@ -98,16 +83,31 @@ Gets user data
 """
 
 def get_user(username: str, include_password=False):
-    for user in db_users:
-        if user['username'] == username:
-            user_data = user.copy()
+    query = session.query(User).filter(User.username == username)
 
-            if not include_password:
-                del user_data['password']
+    if session.query(literal(True)).filter(query.exists()).scalar():
+        user = query[0]
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'password': user.password,
+            'age': user.age,
+            'name': user.name,
+            'lastname': user.lastname,
+            'creation_date': user.creation_date,
+            'modification_date': user.modification_date,
+            'deleted_date': user.deleted_date,
+            'deleted': user.deleted,
+            'role': user.role.name
+        }
 
-            return user_data
+        if not include_password:
+            del user_data['password']
+
+        return user_data
+
     return None
-
 
 
 """
@@ -170,6 +170,7 @@ def start_database_sample():
     bob.email = 'bob@mail.com'
     bob.name = 'Bob'
     bob.lastname = 'Pierce'
+    bob.password = '12345#hash'
     bob.role = member_role
     session.add(bob)
 
@@ -179,6 +180,7 @@ def start_database_sample():
     alice.age = 24
     alice.name = 'Alice'
     alice.lastname = 'Kane'
+    alice.password = '54321#hash'
     alice.role = admin_role
     session.add(alice)
 
