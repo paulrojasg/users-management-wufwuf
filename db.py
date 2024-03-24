@@ -99,7 +99,8 @@ def get_user(username: str, include_password=False):
             'modification_date': user.modification_date,
             'deleted_date': user.deleted_date,
             'deleted': user.deleted,
-            'role': user.role.name
+            'role': user.role.name,
+            'role_id': user.role.id
         }
 
         if not include_password:
