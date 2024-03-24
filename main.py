@@ -1,8 +1,9 @@
 from typing import Annotated
-from fastapi import FastAPI, Form, HTTPException, Response, Cookie, Header
+from fastapi import FastAPI, Form, HTTPException, Response, Header
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+from schemas import LoginDataSchema
 
 Jinja2_template = Jinja2Templates(directory="templates")
 
@@ -61,7 +62,9 @@ Logins user
 """
 
 @app.post("/")
-def login(response: Response, username: Annotated[str, Form()], password: Annotated[str, Form()]):
+def login(response: Response, data: LoginDataSchema):
+    username = data.username
+    password = data.password
     user_data = check_credentials(username, password)
     if user_data:
 
@@ -74,6 +77,8 @@ def login(response: Response, username: Annotated[str, Form()], password: Annota
                 status_code=401,
                 detail="No matching account was found"
             )
+
+
 
 """
 Sample Login Form
