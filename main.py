@@ -71,7 +71,14 @@ def login(response: Response, data: LoginDataSchema):
         token = create_token({'username': user_data['username']})
         token_exp_seconds = get_token_seconds_exp()
         response.set_cookie(key="access-token", value=token, max_age=token_exp_seconds)
-        return user_data
+
+        # Filter dictionary
+        filtered_data = {}
+        for key in user_data:
+            if key in ('username', 'email', 'name', 'lastname', 'age'):
+                filtered_data[key] = user_data[key]
+
+        return filtered_data
 
     raise HTTPException(
                 status_code=401,
