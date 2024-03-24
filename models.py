@@ -38,6 +38,7 @@ class Role(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    description = Column(String)
 
 """
 Models permissions. Permissions are assigned to roles and specify
@@ -50,6 +51,7 @@ class Permission(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    description = Column(String)
 
 
 """
