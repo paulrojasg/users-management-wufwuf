@@ -136,6 +136,14 @@ def check_credentials(username, password):
     return None
 
 
+"""
+Insert basic data to database
+
+@rtype: None
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
 def start_database_sample():
 
     # Roles
