@@ -37,8 +37,8 @@ class Role(Base):
     __tablename__ = 'wufwuf_role'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    description = Column(String)
+    name = Column(String, nullable=False, unique=True)
+    description = Column(String, nullable=True)
 
 """
 Models permissions. Permissions are assigned to roles and specify
@@ -50,8 +50,8 @@ class Permission(Base):
     __tablename__ = 'wufwuf_permission'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    description = Column(String)
+    name = Column(String, nullable=False, unique=True)
+    description = Column(String, nullable=True)
 
 
 """
