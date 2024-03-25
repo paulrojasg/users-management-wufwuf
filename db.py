@@ -164,7 +164,6 @@ def create_user(user_data):
 
         new_user.username = user_data['username']
 
-
         # Verify if email is unused
 
         email = user_data['email']
@@ -172,15 +171,16 @@ def create_user(user_data):
         if session.query(literal(True)).filter(query.exists()).scalar():
             return {'status':'email'}
 
-        new_user.email = user_data['email']
+        new_user.email = email
 
 
         # Verify if role exists
 
-        role = get_role(user_data['role'])
-
-        if not role:
+        query = session.query(Role).filter(Role.name == user_data['role'])
+        if not session.query(literal(True)).filter(query.exists()).scalar():
             return {'status': 'role'}
+
+        role = query[0]
 
         new_user.role = role
 
@@ -195,7 +195,8 @@ def create_user(user_data):
 
         return {'status': 'success'}
 
-    except Exception:
+    except Exception as e:
+        print(e)
         return {'status': 'error'}
 
 
