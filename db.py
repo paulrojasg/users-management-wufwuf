@@ -138,6 +138,165 @@ def check_credentials(username, password):
 
 
 """
+Creates users accounts
+
+@type user_data: dict
+@param user_data: User's data
+@rtype: dict
+@returns: Status which tells if creation was successfull, and if it
+    isn't, tells what's wrong
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+def create_user(user_data):
+    try:
+
+        new_user = User()
+
+        # Verify if username is unused
+        username = user_data['username']
+
+        existing_user = get_user(username)
+
+        if existing_user:
+            return {'status':'username'}
+
+        new_user.username = user_data['username']
+
+
+        # Verify if email is unused
+
+        email = user_data['email']
+        query = session.query(User).filter(User.email == email)
+        if session.query(literal(True)).filter(query.exists()).scalar():
+            return {'status':'email'}
+
+        new_user.email = user_data['email']
+
+
+        # Verify if role exists
+
+        role = get_role(user_data['role'])
+
+        if not role:
+            return {'status': 'role'}
+
+        new_user.role = role
+
+        # Save rest of data
+        new_user.password = user_data['password']
+        new_user.age = user_data['age']
+        new_user.name = user_data['name']
+        new_user.lastname = user_data['lastname']
+
+        session.add(new_user)
+        session.commit()
+
+        return {'status': 'success'}
+
+    except Exception:
+        return {'status': 'error'}
+
+
+
+"""
+Get permission instance
+
+@type name: str
+@param name: Permission's name to search
+@rtype: Dict or None
+@returns: Returns permission's data if match was found, return None if not
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+def get_permission(name):
+    query = session.query(Permission).filter(Permission.name == name)
+
+    if session.query(literal(True)).filter(query.exists()).scalar():
+        permission = query[0]
+
+        permission_data = {
+            "id": permission.id,
+            "name": permission.name,
+            "description": permission.description,
+        }
+
+        return permission_data
+
+    return None
+
+
+"""
+Get role instance
+
+@type name: str
+@param name: Role's name to search
+@rtype: Dict or None
+@returns: Returns role's data if match was found, return None if not
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+def get_role(name):
+    query = session.query(Role).filter(Role.name == name)
+
+    if session.query(literal(True)).filter(query.exists()).scalar():
+        role = query[0]
+
+        role_data = {
+            "id": role.id,
+            "name": role.name,
+            "description": role.description,
+        }
+
+        return role_data
+
+    return None
+
+
+"""
+Checks if a role has some certain permissions.
+
+@type role_name: str
+@param role_name: Role to be checked
+@type permissions_name: list[str]
+@param permissions_name: Permissions to be checked
+@rtype: Boolean
+@returns: True -> role has each permission, False -> role doesn't have each permission
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+def check_role_permission(role_name, permissions_names):
+
+    role = get_role(role_name)
+
+    if role:
+
+        for permission_name in permissions_names:
+            permission = get_permission(permission_name)
+
+            if permission:
+                query = session.query(RolePermission).filter(
+                    RolePermission.role_id == role['id'], RolePermission.permission_id == permission['id']
+                )
+
+                if not session.query(literal(True)).filter(query.exists()).scalar():
+                    return False
+
+        return True
+
+    return False
+
+
+# def check_capability(role_id, permission_name):
+#     query = session.query(User).filter(User.username == username)
+
+#     if session.query(literal(True)).filter(query.exists()).scalar():
+
+"""
 Insert basic data to database
 
 @rtype: None
