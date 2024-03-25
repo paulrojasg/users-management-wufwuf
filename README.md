@@ -29,3 +29,5 @@ Run main app
 ```
 uvicorn main:app
 ```
+
+Look at examples and documentation at http://localhost:8000/docs
