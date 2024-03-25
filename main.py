@@ -8,13 +8,13 @@ from schemas import LoginDataSchema, CreateUserSchema
 Jinja2_template = Jinja2Templates(directory="templates")
 
 # Import login and database resources
-from db import check_credentials, check_role_permission, create_user
+from db import check_credentials, check_role_permission, create_user, hash_password
 
 # Import jwt token generation resources
 from jwt import create_token, get_token_seconds_exp
 
 # Import utils
-from utils import is_login, validate_email, hash_password
+from utils import is_login, validate_email
 
 app = FastAPI()
 

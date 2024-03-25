@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from models import Base, User, Role, Permission, RolePermission
 import os
+from bcrypt import gensalt, hashpw, checkpw
 
 load_dotenv()
 
@@ -28,42 +29,50 @@ session = Session()
 
 
 """
-Decodes password; converts it from hash to plain
+Hashes password given by input
 
-@type password: str
-@param password: Encoded password to be decoded
+@type raw_password: str
+@param raw_password: Password to be hashed
 @rtype: str
-@returns: Returns decoded password
+@returns: Hashed password
 
 @author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
 """
 
-def decode_password(password):
-    decoded_password = password.split('#')[0]
+def hash_password(raw_password):
+    try:
+        bytes = raw_password.encode('utf-8')
+        salt = gensalt()
 
-    return decoded_password
+        hash = hashpw(bytes, salt).decode('utf-8')
+
+        return hash
+
+    except Exception:
+        return None
 
 
 """
-Checks password
+Check if given raw guessed password match hashed password
 
-@type input_password: str
-@param input_password: Password to be checked against one in database
-@type stored_password: str
-@param stored_password: Encoded password stored in database
+@type guessed_password: str
+@param guessed_password: Raw password to be checked
+@type hashed_password: str
+@param hashed_password: Hashed password
 @rtype: Boolean
-@returns: Returns True if input_password matches stored_password, returns
-          False if not
+@returns: True -> passwords match, False -> passwords do not match
 
 @author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
 """
 
-def check_password(input_password, stored_password):
-    decoded_password = decode_password(stored_password)
 
-    if input_password == decoded_password:
-        return True
-    else:
+def check_password(guessed_password, hashed_password):
+    try:
+        guessed_bytes = guessed_password.encode('utf-8')
+        hash_bytes = hashed_password.encode('utf-8')
+
+        return checkpw(guessed_bytes, hash_bytes)
+    except Exception:
         return False
 
 
@@ -354,7 +363,7 @@ def start_database_sample():
     bob.email = 'bob@mail.com'
     bob.name = 'Bob'
     bob.lastname = 'Pierce'
-    bob.password = '12345#hash'
+    bob.password = hash_password('12345')
     bob.role = member_role
     session.add(bob)
 
@@ -364,7 +373,7 @@ def start_database_sample():
     alice.age = 24
     alice.name = 'Alice'
     alice.lastname = 'Kane'
-    alice.password = '54321#hash'
+    alice.password = hash_password('54321')
     alice.role = admin_role
     session.add(alice)
 
