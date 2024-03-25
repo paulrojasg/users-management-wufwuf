@@ -3,7 +3,7 @@ from fastapi import FastAPI, Form, HTTPException, Response, Header
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from schemas import LoginDataSchema, CreateUserSchema
+from schemas import LoginDataSchema, CreateUserSchema, EditUserSchema
 
 Jinja2_template = Jinja2Templates(directory="templates")
 
@@ -84,18 +84,18 @@ def login_request(response: Response, data: LoginDataSchema):
             )
 
 
-# """
-# Creates user
+"""
+Creates user
 
-# @type data: Pydantic schema
-# @param data: CreateUserSchema
-# @type token: str
-# @param token: jwt token
-# @rtype: http response
-# @returns: Tells if creation was successful
+@type data: Pydantic schema
+@param data: CreateUserSchema
+@type token: str
+@param token: jwt token
+@rtype: http response
+@returns: Tells if creation was successful
 
-# @author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
-# """
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
 
 @app.post("/create/user", status_code=201)
 def create_user_request(data: CreateUserSchema, token: Annotated[str | None, Header()] = None):
@@ -169,6 +169,18 @@ def create_user_request(data: CreateUserSchema, token: Annotated[str | None, Hea
             detail="Something went wrong"
         )
 
+
+"""
+Edit an user's account (not finished)
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+@app.put("/edit/user", status_code=200)
+def create_user_request(data: EditUserSchema, token: Annotated[str | None, Header()] = None):
+    pass
+
+
 """
 Sample Login Form
 
@@ -177,7 +189,6 @@ Sample Login Form
 
 @author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
 """
-
 
 @app.get("/login_form", response_class=HTMLResponse)
 def get_login_form(request: Request):
