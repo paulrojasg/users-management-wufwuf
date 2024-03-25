@@ -1,6 +1,7 @@
 from jwt import decode_token
 from db import get_user
 from bcrypt import gensalt, hashpw, checkpw
+import re
 
 
 """
@@ -73,3 +74,23 @@ def check_password(guessed_password, hashed_password):
         return checkpw(guessed_bytes, hash_bytes)
     except Exception:
         return False
+
+
+"""
+Validates if given email string is valid
+
+@type hashed_password: email
+@param hashed_password: email to be checked
+@rtype: Boolean
+@returns: True -> Email is valid, False -> Email is not valid
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+
+def validate_email(email):
+    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    if(re.fullmatch(regex, email)):
+        return True
+
+    return False

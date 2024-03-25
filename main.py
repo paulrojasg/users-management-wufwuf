@@ -14,7 +14,7 @@ from db import check_credentials
 from jwt import create_token, get_token_seconds_exp
 
 # Import utils
-from utils import is_login
+from utils import is_login, validate_email
 
 app = FastAPI()
 
