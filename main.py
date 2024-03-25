@@ -182,6 +182,17 @@ def create_user_request(data: EditUserSchema, token: Annotated[str | None, Heade
 
 
 """
+Checks if login user has some certain permissions
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+@app.put("/edit/user", status_code=200)
+def check_permission_request(token: Annotated[str | None, Header()] = None):
+    pass
+
+
+"""
 Sample Login Form
 
 @rtype: Html response
