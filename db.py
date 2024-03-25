@@ -313,24 +313,39 @@ def start_database_sample():
     session.add(admin_role)
 
     # Permissions
-    view_catalog_permission = Permission(name='View catalog')
-    session.add(view_catalog_permission)
-    update_catalog_permission = Permission(name='Update catalog')
-    session.add(update_catalog_permission)
+    create_user_permission = Permission()
+    create_user_permission.name = 'create_user'
+    create_user_permission.description = 'Can create users'
+    session.add(create_user_permission)
+
+    create_member_user_permission = Permission()
+    create_member_user_permission.name = 'create_member_user'
+    create_member_user_permission.description = 'Can create member users'
+    session.add(create_member_user_permission)
+
+    create_admin_user_permission = Permission()
+    create_admin_user_permission.name = 'create_admin_user'
+    create_admin_user_permission.description = 'Can create admin users'
+    session.add(create_admin_user_permission)
+
 
     # RolePermission
-    member_can_view_catalog = RolePermission()
-    member_can_view_catalog.role = member_role
-    member_can_view_catalog.permission = view_catalog_permission
-    session.add(member_can_view_catalog)
-    admin_can_view_catalog = RolePermission()
-    admin_can_view_catalog.role = admin_role
-    admin_can_view_catalog.permission = view_catalog_permission
-    session.add(admin_can_view_catalog)
-    admin_can_update_catalog = RolePermission()
-    admin_can_update_catalog.role = admin_role
-    admin_can_update_catalog.permission = update_catalog_permission
-    session.add(admin_can_update_catalog)
+    admin_can_create_user = RolePermission()
+    admin_can_create_user.permission = create_user_permission
+    admin_can_create_user.role = admin_role
+    session.add(admin_can_create_user)
+
+    admin_can_create_member_user = RolePermission()
+    admin_can_create_member_user.permission = create_member_user_permission
+    admin_can_create_member_user.role = admin_role
+    session.add(admin_can_create_member_user)
+
+    admin_can_create_admin_user = RolePermission()
+    admin_can_create_admin_user.permission = create_admin_user_permission
+    admin_can_create_admin_user.role = admin_role
+    session.add(admin_can_create_admin_user)
+
+
 
     # Users
     bob = User()
@@ -354,6 +369,11 @@ def start_database_sample():
 
     session.commit()
 
+def test():
+    pass
+
+
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
     start_database_sample()
+    #test()
