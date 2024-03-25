@@ -1,7 +1,14 @@
 from pydantic import BaseModel
-from typing import Annotated
-from fastapi import Form
 
 class LoginDataSchema(BaseModel):
     username: str
     password: str
+
+class CreateUserSchema(BaseModel):
+    username: str
+    email: str
+    password: str
+    age: str | None
+    name: str | None
+    lastname: str | None
+    role: str
