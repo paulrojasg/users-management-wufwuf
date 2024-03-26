@@ -163,7 +163,7 @@ def create_user(user_data):
 
         new_user = User()
 
-        # Verify if username is unused
+        # Verify if username is already used
         username = user_data['username']
 
         existing_user = get_user(username)
@@ -173,7 +173,7 @@ def create_user(user_data):
 
         new_user.username = user_data['username']
 
-        # Verify if email is unused
+        # Verify if email is already used
 
         email = user_data['email']
         query = session.query(User).filter(User.email == email)
