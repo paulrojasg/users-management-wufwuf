@@ -108,24 +108,24 @@ def create_user_request(data: CreateUserSchema, token: Annotated[str | None, Hea
             detail="Invalid token"
         )
 
-    no_authorization_exc = HTTPException(
-            status_code=401,
-            detail="No authorization"
+    forbidden_exc = HTTPException(
+            status_code=403,
+            detail="Forbidden"
         )
 
     # Checks create_user permission
     if not check_role_permission(current_user['role'], ['create_user']):
-        raise no_authorization_exc
+        raise forbidden_exc
 
     # Checks create_member_user permission
     if data.role == 'member':
         if not check_role_permission(current_user['role'], ['create_member_user']):
-            raise no_authorization_exc
+            raise forbidden_exc
 
     # Checks create_admin_user permission
     elif data.role == 'admin':
         if not check_role_permission(current_user['role'], ['create_admin_user']):
-            raise no_authorization_exc
+            raise forbidden_exc
 
     # Checks email format
     if not validate_email(data.email):
