@@ -338,6 +338,26 @@ def start_database_sample():
     create_admin_user_permission.description = 'Can create admin users'
     session.add(create_admin_user_permission)
 
+    edit_user_permission = Permission()
+    edit_user_permission.name = 'edit_user'
+    edit_user_permission.description = 'Can edit users'
+    session.add(edit_user_permission)
+
+    edit_own_user_permission = Permission()
+    edit_own_user_permission.name = 'edit_own_user'
+    edit_own_user_permission.description = 'Can edit own user account'
+    session.add(edit_own_user_permission)
+
+    edit_member_user_permission = Permission()
+    edit_member_user_permission.name = 'edit_member_user'
+    edit_member_user_permission.description = 'Can edit member users accounts'
+    session.add(edit_member_user_permission)
+
+    edit_admin_user_permission = Permission()
+    edit_admin_user_permission.name = 'edit_admin_user'
+    edit_admin_user_permission.description = 'Can edit admin users accounts'
+    session.add(edit_admin_user_permission)
+
 
     # RolePermission
     admin_can_create_user = RolePermission()
@@ -355,7 +375,35 @@ def start_database_sample():
     admin_can_create_admin_user.role = admin_role
     session.add(admin_can_create_admin_user)
 
+    admin_can_edit_user = RolePermission()
+    admin_can_edit_user.permission = edit_user_permission
+    admin_can_edit_user.role = admin_role
+    session.add(admin_can_edit_user)
 
+    member_can_edit_user = RolePermission()
+    member_can_edit_user.permission = edit_user_permission
+    member_can_edit_user.role = member_role
+    session.add(member_can_edit_user)
+
+    admin_can_edit_own_user = RolePermission()
+    admin_can_edit_own_user.permission = edit_own_user_permission
+    admin_can_edit_own_user.role = admin_role
+    session.add(admin_can_edit_own_user)
+
+    member_can_edit_own_user = RolePermission()
+    member_can_edit_own_user.permission = edit_own_user_permission
+    member_can_edit_own_user.role = member_role
+    session.add(member_can_edit_own_user)
+
+    admin_can_edit_member_user = RolePermission()
+    admin_can_edit_member_user.permission = edit_member_user_permission
+    admin_can_edit_member_user.role = admin_role
+    session.add(admin_can_edit_member_user)
+
+    admin_can_edit_admin_user = RolePermission()
+    admin_can_edit_admin_user.permission = edit_admin_user_permission
+    admin_can_edit_admin_user.role = admin_role
+    session.add(admin_can_edit_admin_user)
 
     # Users
     bob = User()
