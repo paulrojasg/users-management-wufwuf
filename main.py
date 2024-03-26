@@ -9,6 +9,7 @@ Jinja2_template = Jinja2Templates(directory="templates")
 
 # Import login and database resources
 from db import check_credentials, check_role_permission, create_user, hash_password
+from db import edit_user, get_user
 
 # Import jwt token generation resources
 from jwt import create_token, get_token_seconds_exp
@@ -177,8 +178,116 @@ Edit an user's account (not finished)
 """
 
 @app.put("/edit/user", status_code=200)
-def create_user_request(data: EditUserSchema, token: Annotated[str | None, Header()] = None):
-    pass
+def edit_user_request(data: EditUserSchema, token: Annotated[str | None, Header()] = None):
+    
+    current_user = is_login(token)
+
+    # Checks login
+    if not current_user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+    forbidden_exc = HTTPException(
+            status_code=403,
+            detail="Forbidden"
+        )
+
+    current_role = current_user['role']
+
+    target_user = get_user(data.username)
+
+    # Checks edit_user permission
+    if not check_role_permission(current_role, ['edit_user']):
+        raise forbidden_exc
+
+    target_role = data.role 
+
+    if current_user['username'] == data.username:
+        # User editing itself
+        if not check_role_permission(current_role, ['edit_own_user']):
+            raise forbidden_exc
+        print(target_role, current_role)
+
+        if target_role != current_user['role']:
+            raise HTTPException(
+                status_code=403,
+                detail="You cannot change your own role"
+            )
+    else:
+        # User editing someone else's account
+
+        if target_user:
+
+            current_target_user_role = target_user['role']
+
+            # User changing another user's role
+            if current_target_user_role != target_role:
+                if target_role == 'member':
+                    if not check_role_permission(current_role, ['grant_member_role']):
+                        raise forbidden_exc
+                elif target_role == 'admin':
+                    if not check_role_permission(current_role, ['grant_admin_role']):
+                        raise forbidden_exc
+
+            if current_target_user_role == 'member':
+                if not check_role_permission(current_role, ['edit_member_user']):
+                    raise forbidden_exc
+
+            elif current_target_user_role == 'admin':
+                if not check_role_permission(current_role, ['edit_admin_user']):
+                    raise forbidden_exc
+        else:
+            raise HTTPException(
+                status_code=401,
+                detail="That user does not exist"
+            )
+
+
+    # Checks if email will be changed
+    current_target_user_email = target_user['email']
+    if current_target_user_email != data.email:
+        if not validate_email(current_target_user_email):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid email"
+            )
+    else:
+        data.email = None
+
+    # Checks if new password is set
+    password = data.password
+    if password == "":
+        data.password = None
+    else:
+        data.password = hash_password(password)
+    
+    result = edit_user(data.model_dump())['status']
+
+    if result  == 'success':
+        return {'msg':'User updated successfully'}
+    elif result == 'username':
+        raise HTTPException(
+            status_code=400,
+            detail="Could not find user"
+        )
+    elif result == 'email':
+        raise HTTPException(
+            status_code=400,
+            detail="Email already in use"
+        )
+    elif result == 'role':
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid role"
+        )
+
+    raise HTTPException(
+            status_code=400,
+            detail="Something went wrong"
+        )
+
 
 
 """

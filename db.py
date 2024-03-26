@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from models import Base, User, Role, Permission, RolePermission
 import os
 from bcrypt import gensalt, hashpw, checkpw
+from datetime import datetime
 
 load_dotenv()
 
@@ -209,6 +210,69 @@ def create_user(user_data):
         return {'status': 'error'}
 
 
+"""
+Edits users accounts
+
+@type user_data: dict
+@param user_data: User's data
+@rtype: dict
+@returns: Status which tells if creation was successfull, and if it
+    isn't, tells what's wrong
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+def edit_user(user_data):
+    try:
+
+        query = session.query(User).filter(User.username == user_data['username'])
+
+        if not session.query(literal(True)).filter(query.exists()).scalar():
+            return {'status':'username'}
+
+        user = query[0]
+
+        # Verify if email is already used
+
+
+        email = user_data['email']
+
+        if email:
+            query = session.query(User).filter(User.email == email)  
+            if session.query(literal(True)).filter(query.exists()).scalar():
+                return {'status':'email'}
+
+            user.email = email
+
+
+        # Verify if role exists
+
+        query = session.query(Role).filter(Role.name == user_data['role'])
+        if not session.query(literal(True)).filter(query.exists()).scalar():
+            return {'status': 'role'}
+
+        role = query[0]
+
+        user.role = role
+
+        # Changes password if new one is given
+        if user_data['password']:
+            user.password = user_data['password']
+        
+        user.age = user_data['age']
+        user.name = user_data['name']
+        user.lastname = user_data['lastname']
+
+        user.modification_date = datetime.now().date()
+
+        session.commit()
+
+        return {'status': 'success'}
+
+
+    except Exception as e:
+        print(e)
+        return {'status': 'error'}
 
 """
 Get permission instance
