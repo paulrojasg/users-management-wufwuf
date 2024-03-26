@@ -358,6 +358,16 @@ def start_database_sample():
     edit_admin_user_permission.description = 'Can edit admin users accounts'
     session.add(edit_admin_user_permission)
 
+    grant_member_role_permission = Permission()
+    grant_member_role_permission.name = 'grant_member_role'
+    grant_member_role_permission.description = 'Can grant another user the role member'
+    session.add(grant_member_role_permission)
+
+    grant_admin_role_permission = Permission()
+    grant_admin_role_permission.name = 'grant_admin_role'
+    grant_admin_role_permission.description = 'Can grant another user the role admin'
+    session.add(grant_admin_role_permission)
+
 
     # RolePermission
     admin_can_create_user = RolePermission()
@@ -404,6 +414,16 @@ def start_database_sample():
     admin_can_edit_admin_user.permission = edit_admin_user_permission
     admin_can_edit_admin_user.role = admin_role
     session.add(admin_can_edit_admin_user)
+
+    admin_can_grant_role_member = RolePermission()
+    admin_can_grant_role_member.permission = grant_member_role_permission
+    admin_can_grant_role_member.role = admin_role
+    session.add(admin_can_grant_role_member)
+
+    admin_can_grant_role_admin = RolePermission()
+    admin_can_grant_role_admin.permission = grant_admin_role_permission
+    admin_can_grant_role_admin.role = admin_role
+    session.add(admin_can_grant_role_admin)
 
     # Users
     bob = User()
