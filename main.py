@@ -15,7 +15,7 @@ from db import edit_user, get_user
 from jwt import create_token, get_token_seconds_exp
 
 # Import utils
-from utils import is_login, validate_email
+from utils import is_login, validate_email, validate_role, validate_age
 
 app = FastAPI()
 
@@ -118,15 +118,19 @@ def create_user_request(data: CreateUserSchema, token: Annotated[str | None, Hea
     if not check_role_permission(current_user['role'], ['create_user']):
         raise forbidden_exc
 
-    # Checks create_member_user permission
-    if data.role == 'member':
-        if not check_role_permission(current_user['role'], ['create_member_user']):
-            raise forbidden_exc
+    target_role = data.role
 
-    # Checks create_admin_user permission
-    elif data.role == 'admin':
-        if not check_role_permission(current_user['role'], ['create_admin_user']):
-            raise forbidden_exc
+    if not validate_role(target_role):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid role"
+        )
+   
+
+    # Checks create_user permission for specific role
+    if not check_role_permission(current_user['role'], [f'create_{target_role}_user']):
+        raise forbidden_exc
+
 
     # Checks email format
     if not validate_email(data.email):
@@ -134,6 +138,12 @@ def create_user_request(data: CreateUserSchema, token: Annotated[str | None, Hea
             status_code=400,
             detail="Invalid email"
         )
+
+    if not validate_age(data.age):
+        raise HTTPException(
+                status_code=400,
+                detail="Invalid age"
+            )
 
     # Encrypts password
     data.password = hash_password(data.password)
@@ -172,7 +182,7 @@ def create_user_request(data: CreateUserSchema, token: Annotated[str | None, Hea
 
 
 """
-Edit an user's account (not finished)
+Edit an user's account
 
 @author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
 """
@@ -204,11 +214,16 @@ def edit_user_request(data: EditUserSchema, token: Annotated[str | None, Header(
 
     target_role = data.role 
 
+    if not validate_role(target_role):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid role"
+        )
+
     if current_user['username'] == data.username:
         # User editing itself
         if not check_role_permission(current_role, ['edit_own_user']):
             raise forbidden_exc
-        print(target_role, current_role)
 
         if target_role != current_user['role']:
             raise HTTPException(
@@ -222,22 +237,15 @@ def edit_user_request(data: EditUserSchema, token: Annotated[str | None, Header(
 
             current_target_user_role = target_user['role']
 
+
+            if not check_role_permission(current_role, [f'edit_{current_target_user_role}_user']):
+                raise forbidden_exc
+
             # User changing another user's role
             if current_target_user_role != target_role:
-                if target_role == 'member':
-                    if not check_role_permission(current_role, ['grant_member_role']):
-                        raise forbidden_exc
-                elif target_role == 'admin':
-                    if not check_role_permission(current_role, ['grant_admin_role']):
-                        raise forbidden_exc
-
-            if current_target_user_role == 'member':
-                if not check_role_permission(current_role, ['edit_member_user']):
+                if not check_role_permission(current_role, [f'grant_{target_role}_role']):
                     raise forbidden_exc
 
-            elif current_target_user_role == 'admin':
-                if not check_role_permission(current_role, ['edit_admin_user']):
-                    raise forbidden_exc
         else:
             raise HTTPException(
                 status_code=401,
@@ -255,6 +263,12 @@ def edit_user_request(data: EditUserSchema, token: Annotated[str | None, Header(
             )
     else:
         data.email = None
+
+    if not validate_age(data.age):
+        raise HTTPException(
+                status_code=400,
+                detail="Invalid age"
+            )
 
     # Checks if new password is set
     password = data.password

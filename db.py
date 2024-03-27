@@ -216,7 +216,7 @@ Edits users accounts
 @type user_data: dict
 @param user_data: User's data
 @rtype: dict
-@returns: Status which tells if creation was successfull, and if it
+@returns: Status which tells if edition was successfull, and if it
     isn't, tells what's wrong
 
 @author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
