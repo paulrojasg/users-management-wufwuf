@@ -1,5 +1,5 @@
 from jwt import decode_token
-from db import get_user
+from db import get_user, get_roles
 import re
 
 
@@ -31,8 +31,8 @@ def is_login(token):
 """
 Validates if given email string is valid
 
-@type hashed_password: email
-@param hashed_password: email to be checked
+@type email: str
+@param email: email to be checked
 @rtype: Boolean
 @returns: True -> Email is valid, False -> Email is not valid
 
@@ -46,6 +46,28 @@ def validate_email(email):
         return True
 
     return False
+
+
+
+"""
+Validates if given role exists
+
+@type role: str
+@param role: Role to be checked
+@rtype: Boolean
+@returns: True -> Role is valid, False -> Role is not valid
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+
+def validate_role(role):
+    roles = get_roles()
+
+    return role in roles
+
+
+
 
 """
 Validates age

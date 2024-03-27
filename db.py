@@ -331,6 +331,26 @@ def get_role(name):
 
 
 """
+Get all available roles
+
+@rtype: list[str]
+@returns: Returns the list of the names of the available roles
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+def get_roles():
+    query = session.query(Role)
+
+    roles = []
+
+    for r in query:
+        roles.append(r.name)
+
+    return roles
+
+
+"""
 Checks if a role has some certain permissions.
 
 @type role_name: str
