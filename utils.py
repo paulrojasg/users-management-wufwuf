@@ -46,3 +46,31 @@ def validate_email(email):
         return True
 
     return False
+
+"""
+Validates age
+
+@type role: str
+@param role: Age in string format to be checked
+@rtype: Boolean
+@returns: True -> Age is valid, False -> Age is not valid
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+
+def validate_age(age):
+    try:
+        if not age.isdigit():
+            return False
+
+        num_age = int(age)
+
+        if num_age < 0 or num_age > 150:
+            return False
+
+        return True
+
+    except Exception as e:
+        print(e)
+        return False
