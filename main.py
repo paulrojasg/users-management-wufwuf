@@ -3,13 +3,13 @@ from fastapi import FastAPI, Form, HTTPException, Response, Header
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from schemas import LoginDataSchema, CreateUserSchema, EditUserSchema
+from schemas import LoginDataSchema, CreateUserSchema, EditUserSchema, DeleteUserSchema
 
 Jinja2_template = Jinja2Templates(directory="templates")
 
 # Import login and database resources
 from db import check_credentials, check_role_permission, create_user, hash_password
-from db import edit_user, get_user
+from db import edit_user, get_user, delete_user
 
 # Import jwt token generation resources
 from jwt import create_token, get_token_seconds_exp
@@ -125,7 +125,7 @@ def create_user_request(data: CreateUserSchema, token: Annotated[str | None, Hea
             status_code=400,
             detail="Invalid role"
         )
-   
+
 
     # Checks create_user permission for specific role
     if not check_role_permission(current_user['role'], [f'create_{target_role}_user']):
@@ -189,7 +189,7 @@ Edit an user's account
 
 @app.put("/edit/user", status_code=200)
 def edit_user_request(data: EditUserSchema, token: Annotated[str | None, Header()] = None):
-    
+
     current_user = is_login(token)
 
     # Checks login
@@ -212,7 +212,7 @@ def edit_user_request(data: EditUserSchema, token: Annotated[str | None, Header(
     if not check_role_permission(current_role, ['edit_user']):
         raise forbidden_exc
 
-    target_role = data.role 
+    target_role = data.role
 
     if not validate_role(target_role):
         raise HTTPException(
@@ -276,7 +276,7 @@ def edit_user_request(data: EditUserSchema, token: Annotated[str | None, Header(
         data.password = None
     else:
         data.password = hash_password(password)
-    
+
     result = edit_user(data.model_dump())['status']
 
     if result  == 'success':
@@ -303,6 +303,68 @@ def edit_user_request(data: EditUserSchema, token: Annotated[str | None, Header(
         )
 
 
+"""
+Deletes an user account
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+@app.delete("/delete/user", status_code=200)
+def delete_user_request(data: DeleteUserSchema, token: Annotated[str | None, Header()] = None):
+    current_user = is_login(token)
+
+    # Checks login
+    if not current_user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+    forbidden_exc = HTTPException(
+            status_code=403,
+            detail="Forbidden"
+        )
+
+    current_role = current_user['role']
+
+    # Checks delete_user permission
+    if not check_role_permission(current_role, ['delete_user']):
+        raise forbidden_exc
+
+    target_user = get_user(data.username)
+
+    # Trying to delete own account
+    if data.username == current_user['username']:
+        if not check_role_permission(current_role, ['delete_own_user']):
+            raise forbidden_exc
+    else:
+        # Trying to delete accont of someone else
+        if target_user:
+            current_target_user_role = target_user['role']
+
+            if not check_role_permission(current_role, [f'delete_{current_target_user_role}_user']):
+                raise forbidden_exc
+
+        else:
+            raise HTTPException(
+                status_code=401,
+                detail="That user does not exist"
+            )
+
+    result = delete_user(target_user['username'])['status']
+
+    if result  == 'success':
+        return {'msg':'User deleted successfully'}
+    elif result == 'username':
+        raise HTTPException(
+            status_code=400,
+            detail="Could not find user"
+        )
+
+    raise HTTPException(
+            status_code=400,
+            detail="Something went wrong"
+        )
 
 """
 Checks if login user has some certain permissions

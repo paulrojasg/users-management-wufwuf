@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, literal
+from sqlalchemy import create_engine, literal, and_
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from models import Base, User, Role, Permission, RolePermission
@@ -93,7 +93,7 @@ Gets user data
 """
 
 def get_user(username: str, include_password=False):
-    query = session.query(User).filter(User.username == username)
+    query = session.query(User).filter(and_(User.username == username, User.deleted == False))
 
     if session.query(literal(True)).filter(query.exists()).scalar():
         user = query[0]
@@ -238,7 +238,7 @@ def edit_user(user_data):
         email = user_data['email']
 
         if email:
-            query = session.query(User).filter(User.email == email)  
+            query = session.query(User).filter(User.email == email)
             if session.query(literal(True)).filter(query.exists()).scalar():
                 return {'status':'email'}
 
@@ -258,7 +258,7 @@ def edit_user(user_data):
         # Changes password if new one is given
         if user_data['password']:
             user.password = user_data['password']
-        
+
         user.age = user_data['age']
         user.name = user_data['name']
         user.lastname = user_data['lastname']
@@ -269,6 +269,40 @@ def edit_user(user_data):
 
         return {'status': 'success'}
 
+
+    except Exception as e:
+        print(e)
+        return {'status': 'error'}
+
+
+"""
+Deletes users accounts
+
+@type username: str
+@param username: User's username to be deleted
+@rtype: dict
+@returns: Status which tells if deletion was successfull, and if it
+    isn't, tells what's wrong
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+
+def delete_user(username):
+    try:
+        query = session.query(User).filter(and_(User.username == username, User.deleted == False))
+
+        if not session.query(literal(True)).filter(query.exists()).scalar():
+            return {'status':'username'}
+
+        user = query[0]
+
+        user.deleted = True
+
+        user.deleted_date = datetime.now().date()
+
+        session.commit()
+
+        return {'status': 'success'}
 
     except Exception as e:
         print(e)
@@ -452,6 +486,25 @@ def start_database_sample():
     grant_admin_role_permission.description = 'Can grant another user the role admin'
     session.add(grant_admin_role_permission)
 
+    delete_user_permission = Permission()
+    delete_user_permission.name = 'delete_user'
+    delete_user_permission.description = 'Can delete users'
+    session.add(delete_user_permission)
+
+    delete_member_user_permission = Permission()
+    delete_member_user_permission.name = 'delete_member_user'
+    delete_member_user_permission.description = 'Can delete member users'
+    session.add(delete_member_user_permission)
+
+    delete_admin_user_permission = Permission()
+    delete_admin_user_permission.name = 'delete_admin_user'
+    delete_admin_user_permission.description = 'Can delete admin users'
+    session.add(delete_admin_user_permission)
+
+    delete_own_user_permission = Permission()
+    delete_own_user_permission.name = 'delete_own_user'
+    delete_own_user_permission.description = 'Can delete own user'
+    session.add(delete_own_user_permission)
 
     # RolePermission
     admin_can_create_user = RolePermission()
@@ -484,6 +537,7 @@ def start_database_sample():
     admin_can_edit_own_user.role = admin_role
     session.add(admin_can_edit_own_user)
 
+
     member_can_edit_own_user = RolePermission()
     member_can_edit_own_user.permission = edit_own_user_permission
     member_can_edit_own_user.role = member_role
@@ -508,6 +562,36 @@ def start_database_sample():
     admin_can_grant_role_admin.permission = grant_admin_role_permission
     admin_can_grant_role_admin.role = admin_role
     session.add(admin_can_grant_role_admin)
+
+    member_can_delete_user = RolePermission()
+    member_can_delete_user.permission = delete_user_permission
+    member_can_delete_user.role = member_role
+    session.add(member_can_delete_user)
+
+    admin_can_delete_user = RolePermission()
+    admin_can_delete_user.permission = delete_user_permission
+    admin_can_delete_user.role = admin_role
+    session.add(admin_can_delete_user)
+
+    admin_can_delete_member_user = RolePermission()
+    admin_can_delete_member_user.permission = delete_member_user_permission
+    admin_can_delete_member_user.role = admin_role
+    session.add(admin_can_delete_member_user)
+
+    admin_can_delete_admin_user = RolePermission()
+    admin_can_delete_admin_user.permission = delete_admin_user_permission
+    admin_can_delete_admin_user.role = admin_role
+    session.add(admin_can_delete_admin_user)
+
+    member_can_delete_own_user = RolePermission()
+    member_can_delete_own_user.permission = delete_own_user_permission
+    member_can_delete_own_user.role = member_role
+    session.add(member_can_delete_own_user)
+
+    admin_can_delete_own_user = RolePermission()
+    admin_can_delete_own_user.permission = delete_own_user_permission
+    admin_can_delete_own_user.role = admin_role
+    session.add(admin_can_delete_own_user)
 
     # Users
     bob = User()

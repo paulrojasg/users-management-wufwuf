@@ -39,3 +39,12 @@ class EditUserSchema(BaseModel):
     name: str | None
     lastname: str | None
     role: str
+
+
+"""
+Schema used for validating delete user form
+
+@author: Paul Rodrigo Rojas G. (paul.rojas@correounivalle.edu.co)
+"""
+class DeleteUserSchema(BaseModel):
+    username: str
